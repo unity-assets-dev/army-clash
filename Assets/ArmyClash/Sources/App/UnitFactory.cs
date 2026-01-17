@@ -1,15 +1,16 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class UnitFactory : MonoBehaviour {
-    [SerializeField] private int _teamSize = 20;
+public class UnitFactory : MonoBehaviour, IEnumerable<Actor> {
+    
     [SerializeField] private Actor[] _teamPrefabs;
 
     [SerializeField] private Stats _stats;
     [SerializeField] private StatModifier[] _modifiers;
-
+    
     private Dictionary<Type, IStat[]> _active;
     private readonly HashSet<Actor> _actors = new();
 
@@ -19,18 +20,14 @@ public class UnitFactory : MonoBehaviour {
             .ToDictionary(x => x.Key, x => x.ToArray());
     }
 
-    public T GetActor<T>() where T : Actor {
+    public T GetActor<T>(Vector3 position) where T : Actor {
         var prefab = _teamPrefabs.OfType<T>().FirstOrDefault();
-        var instance = Instantiate(prefab, transform);
+        var instance = Instantiate(prefab, position, Quaternion.identity, transform);
         _actors.Add(instance);
         return instance;
     }
 
-    public void DisposeActor(Actor actor) {
-        _actors.Remove(actor);
-    }
-
-    public Actor[] UpdateActors() {
+    public Actor[] RandomizeActors() {
         foreach (var actor in _actors) {
             ApplyModifiers(actor);
         }
@@ -38,11 +35,12 @@ public class UnitFactory : MonoBehaviour {
         return _actors.ToArray();
     }
 
-    private void ApplyModifiers(Actor actor) {
+    private void ApplyModifiers(Actor actor, bool firstModifier = false) {
         var stats = _stats as IStat;
 
         foreach (var mod in _active.Keys) {
-            var modifier = _active[mod].Shuffle().FirstOrDefault();
+            var modifiers = _active[mod];
+            var modifier = firstModifier? modifiers[0]: modifiers.Shuffle().FirstOrDefault();
             if (modifier != null)
                 stats = modifier.Transform(stats);
         }
@@ -50,4 +48,21 @@ public class UnitFactory : MonoBehaviour {
         actor.ApplyStats(stats);
     }
 
+    public void Clear() {
+        foreach (var actor in _actors) {
+            actor.Dispose();
+            _actors.Remove(actor);
+            Destroy(actor.gameObject);
+        }
+    }
+
+    public void DefaultStats() {
+        foreach (var actor in _actors) {
+            ApplyModifiers(actor, firstModifier: true);
+        }
+    }
+
+    public IEnumerator<Actor> GetEnumerator() => _actors.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

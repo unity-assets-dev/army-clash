@@ -8,7 +8,7 @@ public class ActorSystem : MonoBehaviour, IEnumerable<IActor> {
     private readonly Queue<IActor> _added = new();
     private readonly Queue<IActor> _removed = new();
     
-    private bool _pause;
+    private bool _pause = true;
     
     public void Pause(bool pause) => _pause = pause;
 
@@ -41,6 +41,7 @@ public class ActorSystem : MonoBehaviour, IEnumerable<IActor> {
 
     public void Remove(IActor actor) => _removed.Enqueue(actor);
 
+    public void Clear() => RemoveActors();
 
     public IEnumerator<IActor> GetEnumerator() => _actors.GetEnumerator();
 

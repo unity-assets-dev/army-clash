@@ -8,7 +8,18 @@ public class GridMap : MonoBehaviour {
     private float HalfWidth => _gridSize.x * _cellSize * .5f;
     private float HalfHeight => _gridSize.y * _cellSize * .5f;
 
+    public int CellsCount => _gridSize.x * _gridSize.y;
     public Vector3 GetPosition(int x, int y) {
+        
+        return new Vector3(
+            x * _cellSize - HalfWidth - _cellSize * .5f,
+            0,
+            y * _cellSize - HalfHeight - _cellSize * .5f);
+    }
+    
+    public Vector3 GetPosition(int index) {
+        var x = index % _gridSize.x;
+        var y = index / _gridSize.x;
         
         return new Vector3(
             x * _cellSize - HalfWidth - _cellSize * .5f,

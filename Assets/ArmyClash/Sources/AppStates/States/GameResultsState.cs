@@ -1,4 +1,11 @@
 public class GameResultsState : VisibleState<GameResultsScreen> {
-    
-    public GameResultsState(GameResultsScreen screen) : base(screen) { }
+    private readonly SceneMediator _scene;
+
+    public GameResultsState(SceneMediator scene, GameResultsScreen screen) : base(screen) {
+        _scene = scene;
+    }
+
+    protected override void OnEnterState() {
+        
+    }
 }
