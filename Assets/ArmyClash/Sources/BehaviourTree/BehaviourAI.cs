@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace BehaviourTree {
     public enum Status { Running, Success, Failure }
@@ -72,11 +73,15 @@ namespace BehaviourTree {
     public class ConditionNode : INode {
         
         private readonly Func<bool> _predicate;
+        private readonly string _name;
         public ConditionNode(Func<bool> predicate) => _predicate = predicate;
-        
+        public ConditionNode(string name, Func<bool> predicate): this(predicate) => _name = name;
+
         public Status Evaluate(float dt) {
             try {
-                return _predicate() ? Status.Success : Status.Failure;
+                var result = _predicate() ? Status.Success : Status.Failure;
+                if(!string.IsNullOrEmpty(_name)) Debug.Log($"[{_name}: {result}]");
+                return result;
             }
             catch {
                 return Status.Failure;
@@ -86,14 +91,22 @@ namespace BehaviourTree {
 
     public class ContinuationNode : INode {
         private readonly Func<float, bool> _predicate;
+        private readonly string _name;
 
         public ContinuationNode(Func<float, bool> predicate) => _predicate = predicate;
+
+        public ContinuationNode(string name, Func<float, bool> predicate): this(predicate) {
+            _name = name;
+        }
 
         public Status Evaluate(float dt) {
             try {
                 if (_predicate == null) return Status.Failure;
+                var result = _predicate(dt) ? Status.Success : Status.Running;
                 
-                return _predicate(dt) ? Status.Success : Status.Running;
+                if(!string.IsNullOrEmpty(_name)) Debug.Log($"[{_name}: {result}]");
+                
+                return result;
             }
             catch {
                 return Status.Failure;

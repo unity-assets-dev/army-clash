@@ -10,21 +10,19 @@ public class AppStateFactory : MonoBehaviour {
     [SerializeField] private SceneMediator _mediator;
     
     public AppStates Create() {
+        foreach (var screen in _screens) {
+            screen.Hide();
+        }
+        
         return new AppStates(new IAppState[] {
-            GetState<BootstrapState, BootstrapScreen>(), // First boot;
-            GetState<MenuState, MenuScreen>(_mediator), // Prepare scene;
-            GetState<GamePlayState, GamePlayScreen>(_mediator), // Start simulation;
-            GetState<GameResultsState, GameResultsScreen>(_mediator), // complete simulation;
+            Create<BootstrapState, BootstrapScreen>(), // First boot;
+            Create<MenuState, MenuScreen>(_mediator), // Prepare scene;
+            Create<GamePlayState, GamePlayScreen>(_mediator), // Start simulation;
+            Create<GameResultsState, GameResultsScreen>(), // complete simulation;
         });
     }
     
     private void OnValidate() => _screens = FindObjectsOfType<StateScreen>(true);
-
-    private void OnEnable() {
-        foreach (var screen in _screens) {
-            screen.Hide();
-        }
-    }
 
     private bool TryGetScreen<TScreen>(out TScreen screen) where TScreen : StateScreen {
         screen = _screens.OfType<TScreen>().FirstOrDefault();
@@ -39,7 +37,7 @@ public class AppStateFactory : MonoBehaviour {
         return null;
     }
 
-    private TState GetState<TState, TScreen>(params object[] args) where TState : IAppState where TScreen: StateScreen {
+    private TState Create<TState, TScreen>(params object[] args) where TState : IAppState where TScreen: StateScreen {
         var source = new List<object>(args);
         source.Add(GetScreen<TScreen>());
         

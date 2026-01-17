@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BehaviourTree;
 using UnityEngine;
 
@@ -9,7 +10,9 @@ public class ActorBrain : ScriptableObject {
     
     private BehaviourAI _root;
     private float _startupTimer;
+    private Actor _spottedTarget;
     private Actor _actor;
+    private Vector3 _retreatPosition;
 
     public ActorBrain CreateInstance(Actor actor) {
         var instance = Instantiate(this);
@@ -17,57 +20,60 @@ public class ActorBrain : ScriptableObject {
         return instance;
     }
 
+    private readonly HashSet<Actor> _surroundingEnemies = new (100);
     private void Setup(Actor actor) {
         _actor = actor;
         
         _root = INode.NewTree(new [] {
-            // check states: Init, Validate health, Action in combat
-            StartupState(actor),
-            ValidateHealth(actor),
-            SearchTarget(actor),
-            AttackTarget(actor),
+            // Timer before the units can run and check health condition;
+            INode.And(new[] { 
+                INode.Continuation(StartupTimer),
+                INode.Condition(actor.Alive),
+                INode.Action(() => {
+                    if (actor.GetHit()) _spottedTarget = null;
+                })
+            }),
+            
+            INode.Or(new [] {
+                // if actor is surrounded by enemies then will try escape from surround;
+                INode.And(new [] {
+                    INode.Condition(() => {
+                        if (Random.Range(0, 20) <=1) return false;
+                        
+                        _blackboard.GetSurroundedCount(actor, 3, _surroundingEnemies);
+
+                        return _surroundingEnemies.Count > 3;
+                    }),
+                    INode.Action(() => actor.PushBack(_surroundingEnemies)), 
+                }),
+                // if no a target or the target is lost, then find other nearest a target;
+                INode.And(new [] { 
+                    INode.Condition(() => _spottedTarget.Dead() || Random.Range(0, 50) < 10),
+                    INode.Condition(() => {
+                        _spottedTarget = _blackboard.GetNearestAliveTarget(actor);
+
+                        return _spottedTarget.Alive();
+                    }), 
+                }),
+                
+                // if a target exists and alive then move towards the target and try attack;
+                INode.And(new[] { 
+                    INode.Condition(() => _spottedTarget.Alive()),
+                    INode.Continuation((dt) => actor.MoveTo(_spottedTarget.transform.position)), 
+                    INode.Action(() => {
+                        if (_spottedTarget.Alive() && actor.OnAttackDistance(_spottedTarget)) {
+                            actor.Attack(_spottedTarget);
+                            return;
+                        }
+                        
+                        _spottedTarget = null;
+                    })
+                }),
+            }),
+            
         });
         
         _blackboard.AddBrain(actor);
-    }
-
-    private INode AttackTarget(Actor actor) {
-        return INode.And(new[] {
-            INode.Condition(() => _target.Alive()),
-            INode.Continuation((dt) => {
-                if (_target.Dead()) {
-                    _target = null;
-                    return true;
-                }
-                return  actor.MoveTo(_target, 2, dt);
-            }), 
-        });
-    }
-
-    private INode StartupState(Actor actor) {
-        return INode.Continuation(StartupTimer);
-    }
-
-    private INode ValidateHealth(Actor actor) {
-        return INode.Or(new[] {
-            INode.Condition(actor.Alive),
-        });
-    }
-
-    private Actor _target;
-
-    private INode SearchTarget(Actor actor) {
-        return INode.And(new INode[] {
-            
-            // No target, then
-            INode.Condition(() => _target.Dead()),
-            // Find nearest target
-            INode.Condition(() => {
-                _target = _blackboard.GetNearestAliveTarget(actor);
-
-                return _target.Alive();
-            }), 
-        });
     }
 
     private bool StartupTimer(float dt) {

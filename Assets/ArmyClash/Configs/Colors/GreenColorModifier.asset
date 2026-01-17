@@ -15,5 +15,5 @@ MonoBehaviour:
   _healthBonus: -50
   _attackBonus: 20
   _attackSpeedBonus: 0
-  _speedBonus: -1
+  _speedBonus: -5
   _color: {r: 0.1490072, g: 1, b: 0, a: 1}

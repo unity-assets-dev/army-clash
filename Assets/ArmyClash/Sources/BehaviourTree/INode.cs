@@ -14,7 +14,9 @@ namespace BehaviourTree {
         static INode And(IEnumerable<INode> nodes) => new Sequence(nodes.ToArray());
         
         static INode Action(Action action) => new ActionNode(action);
+        static INode Condition(string name, Func<bool> predicate) => new ConditionNode(name, predicate);
         static INode Condition(Func<bool> predicate) => new ConditionNode(predicate);
+        static INode Continuation(string name, Func<float, bool> predicate) => new ContinuationNode(name, predicate);
         static INode Continuation(Func<float, bool> predicate) => new ContinuationNode(predicate);
 
     }

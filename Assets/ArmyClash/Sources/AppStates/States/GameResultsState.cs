@@ -1,11 +1,8 @@
 public class GameResultsState : VisibleState<GameResultsScreen> {
-    private readonly SceneMediator _scene;
 
-    public GameResultsState(SceneMediator scene, GameResultsScreen screen) : base(screen) {
-        _scene = scene;
-    }
+    public GameResultsState( GameResultsScreen screen) : base(screen) {}
 
     protected override void OnEnterState() {
-        
+        Utils.Delay(3, IFromState.To<MenuState>);
     }
 }

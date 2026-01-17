@@ -13,5 +13,9 @@ public class MenuState : VisibleState<MenuScreen> {
         
         Screen.OnStartPlaying(IFromState.To<GamePlayState>);
     }
+
+    protected override void OnExitState() {
+        Screen.Dispose();
+    }
 }
 

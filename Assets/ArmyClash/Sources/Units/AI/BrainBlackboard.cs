@@ -23,6 +23,12 @@ public class BrainBlackboard : ScriptableObject {
         return GetNearestTarget(actor, out var nearestTarget) ? nearestTarget : null;
     }
 
+    private List<Actor> GetEnemyTeam(Actor actor) {
+        var key = _actors.Keys.FirstOrDefault(k => k != actor.GetType());
+        
+        return _actors[key];
+    }
+
     public bool GetNearestTarget(Actor actor, out Actor target) {
         var key = _actors.Keys.FirstOrDefault(k => k != actor.GetType());
         target = null;
@@ -34,12 +40,22 @@ public class BrainBlackboard : ScriptableObject {
             if(neighbor.Dead()) continue;
             
             var distance = Vector3.Distance(actor.transform.position, neighbor.transform.position);
-            if (distance < nearest) {
+            if (distance < nearest || target != null && target.Health > neighbor.Health) {
                 target = neighbor;
                 nearest = distance;
             }
         }
 
         return target != null;
+    }
+    
+    public void GetSurroundedCount(Actor actor, int range, in HashSet<Actor> surroundingEnemy) {
+        surroundingEnemy.Clear();
+
+        foreach (var enemy in GetEnemyTeam(actor)) {
+            if (Vector3.Distance(actor.transform.position, enemy.transform.position) <= range) {
+                surroundingEnemy.Add(enemy);
+            }
+        }
     }
 }

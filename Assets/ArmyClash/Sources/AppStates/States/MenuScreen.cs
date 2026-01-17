@@ -9,5 +9,9 @@ public class MenuScreen : StateScreen {
     
     public void OnRandomizeTeams(Action onClick) => _randomizeButton.onClick.AddListener(() => onClick?.Invoke());
     public void OnStartPlaying(Action onClick) => _playButton.onClick.AddListener(() => onClick?.Invoke());
-    
+
+    public void Dispose() {
+        _randomizeButton.onClick.RemoveAllListeners();
+        _playButton.onClick.RemoveAllListeners();
+    }
 }

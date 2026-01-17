@@ -40,10 +40,13 @@ public class ActorSystem : MonoBehaviour, IEnumerable<IActor> {
     }
 
     public void Remove(IActor actor) => _removed.Enqueue(actor);
-
-    public void Clear() => RemoveActors();
+    
 
     public IEnumerator<IActor> GetEnumerator() => _actors.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Clear() {
+        RemoveActors();
+    }
 }

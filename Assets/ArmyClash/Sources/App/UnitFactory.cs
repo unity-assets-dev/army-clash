@@ -47,12 +47,16 @@ public class UnitFactory : MonoBehaviour, IEnumerable<Actor> {
 
         actor.ApplyStats(stats);
     }
+    
+    public void RemoveUnit(Actor actor) {
+        _actors.Remove(actor);
+        actor.Dispose();
+        Destroy(actor.gameObject);
+    }
 
     public void Clear() {
-        foreach (var actor in _actors) {
-            actor.Dispose();
-            _actors.Remove(actor);
-            Destroy(actor.gameObject);
+        foreach (var actor in _actors.ToArray()) {
+            RemoveUnit(actor);
         }
     }
 
@@ -65,4 +69,6 @@ public class UnitFactory : MonoBehaviour, IEnumerable<Actor> {
     public IEnumerator<Actor> GetEnumerator() => _actors.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    
 }
