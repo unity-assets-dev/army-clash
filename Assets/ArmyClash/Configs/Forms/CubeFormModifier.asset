@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec5c65f39d4d4f558275fb44b6d69fad, type: 3}
+  m_Name: CubeFormModifier
+  m_EditorClassIdentifier: Assembly-CSharp::FormModifier
+  _healthBonus: 100
+  _attackBonus: 10
+  _attackSpeedBonus: 0
+  _speedBonus: 0
+  _hitBoxPrefab: {fileID: 1050292741718026506, guid: 12d0247d8e3dd466987a5794ec43095d, type: 3}
