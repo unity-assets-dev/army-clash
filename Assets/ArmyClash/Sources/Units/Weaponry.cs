@@ -16,7 +16,7 @@ public class Weaponry {
     public bool TryAttack(Actor target) {
         if(!CanAttack) return false;
         
-        target.Hit(_stat.Attack);
+        target.Hit(Mathf.Max(1, _stat.Attack));
         UpdateReloadCooldown();
 
         return true;

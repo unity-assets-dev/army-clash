@@ -2152,7 +2152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15980053b8304a5aa8ac97378fecd5d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneMediator
-  _teamSize: 400
+  _teamSize: 20
   _unitFactory: {fileID: 760215217}
   _actorSystem: {fileID: 760215216}
   _grid: {fileID: 1573833203}
@@ -2168,7 +2168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ad978f52ac441a6bed13ea55b1bdea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridMap
-  _gridSize: {x: 30, y: 24}
+  _gridSize: {x: 10, y: 24}
   _cellSize: 2
 --- !u!1 &1621094560
 GameObject:

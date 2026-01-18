@@ -24,16 +24,14 @@ public class BrainBlackboard : ScriptableObject {
         }
     }
 
-    public bool TryUserPushBack(Actor actor) {
+    public bool TryUsePushBack(Actor actor) {
         if (!_usePushBack) return false;
         
         var chances = actor.HealthPercent > .5f ? 5 : 15;
         return UnityEngine.Random.Range(0, chances) >= 5;
     }
     
-    public Actor GetNearestAliveTarget(Actor actor) {
-        return GetNearestTarget(actor, out var nearestTarget) ? nearestTarget : null;
-    }
+    public Actor GetNearestAliveTarget(Actor actor) => GetNearestTarget(actor, out var nearestTarget) ? nearestTarget : null;
 
     private List<Actor> GetEnemyTeam(Actor actor) {
         foreach (var key in _actors.Keys) {
@@ -43,7 +41,6 @@ public class BrainBlackboard : ScriptableObject {
     }
 
     public bool GetNearestTarget(Actor actor, out Actor target) {
-        
         var neighbors = GetEnemyTeam(actor);
         
         var job = GetNearestJob.Create(actor, neighbors).CompleteSchedule(neighbors.Count);
@@ -109,23 +106,28 @@ public struct GetSurroundingCountJob : IJobParallelFor {
 [BurstCompile]
 public struct GetNearestJob : IJobParallelFor {
     
-    [ReadOnly] private Vector3 Self;
-    [ReadOnly] private NativeArray<Vector3> Position;
-    [ReadOnly] private NativeArray<int> Health;
+    [ReadOnly] private Vector3 _self;
+    [ReadOnly] private float _selfHealth;
+    [ReadOnly] private NativeArray<Vector3> _position;
+    [ReadOnly] private NativeArray<int> _healths;
 
     public int Target;
 
     private float _minDistance;
     
+    
     public void Execute(int index) {
-        var position = Position[index];
-        var health = Health[index];
-        var distance = math.distance(position,  Self);
+        _minDistance = _minDistance == 0? float.MaxValue : _minDistance;
+        
+        var position = _position[index];
+        //var health = _healths[index];
+        var distance = math.distance(position,  _self);
 
-        if (_minDistance > 0 && distance < _minDistance) {
+        if (distance < _minDistance) {
             _minDistance = distance;
             Target = index;
         }
+        
     }
 
     public static GetNearestJob Create(Actor actor, List<Actor> targets) {
@@ -138,9 +140,10 @@ public struct GetNearestJob : IJobParallelFor {
         }
         
         return new GetNearestJob() {
-            Self = actor.transform.position,
-            Position = positions,
-            Health = healths,
+            _self = actor.transform.position,
+            _selfHealth = actor.HealthPercent,
+            _position = positions,
+            _healths = healths,
         };
     }
 }

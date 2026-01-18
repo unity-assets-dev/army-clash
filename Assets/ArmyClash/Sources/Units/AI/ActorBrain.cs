@@ -38,7 +38,7 @@ public class ActorBrain : ScriptableObject {
                 // if actor is surrounded by enemies then will try escape from surround;
                 INode.And(new [] {
                     INode.Condition(() => {
-                        if (!_blackboard.TryUserPushBack(actor)) return false;
+                        if (!_blackboard.TryUsePushBack(actor)) return false;
                         
                         _blackboard.GetSurroundedCount(actor, 3, _surroundingEnemies);
 
