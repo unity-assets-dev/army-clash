@@ -2114,8 +2114,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1573833199}
-  - component: {fileID: 1573833202}
-  - component: {fileID: 1573833203}
   m_Layer: 0
   m_Name: '[Map]'
   m_TagString: Untagged
@@ -2140,36 +2138,6 @@ Transform:
   - {fileID: 760215215}
   m_Father: {fileID: 1989159428}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1573833202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1573833198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15980053b8304a5aa8ac97378fecd5d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SceneMediator
-  _teamSize: 20
-  _unitFactory: {fileID: 760215217}
-  _actorSystem: {fileID: 760215216}
-  _grid: {fileID: 1573833203}
---- !u!114 &1573833203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1573833198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57ad978f52ac441a6bed13ea55b1bdea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GridMap
-  _gridSize: {x: 10, y: 24}
-  _cellSize: 2
 --- !u!1 &1621094560
 GameObject:
   m_ObjectHideFlags: 0
@@ -2660,6 +2628,8 @@ GameObject:
   - component: {fileID: 1989159428}
   - component: {fileID: 1989159429}
   - component: {fileID: 1989159430}
+  - component: {fileID: 1989159432}
+  - component: {fileID: 1989159431}
   m_Layer: 0
   m_Name: '[Entry]'
   m_TagString: Untagged
@@ -2713,7 +2683,37 @@ MonoBehaviour:
   - {fileID: 917414951}
   - {fileID: 1360393813}
   - {fileID: 1394579308}
-  _mediator: {fileID: 1573833202}
+  _mediator: {fileID: 1989159432}
+--- !u!114 &1989159431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989159427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57ad978f52ac441a6bed13ea55b1bdea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridMap
+  _gridSize: {x: 10, y: 24}
+  _cellSize: 2
+--- !u!114 &1989159432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989159427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15980053b8304a5aa8ac97378fecd5d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneMediator
+  _teamSize: 20
+  _unitFactory: {fileID: 760215217}
+  _actorSystem: {fileID: 760215216}
+  _grid: {fileID: 1989159431}
 --- !u!1 &1993055554
 GameObject:
   m_ObjectHideFlags: 0

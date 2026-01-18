@@ -43,7 +43,10 @@ public class ActorHitBox : MonoBehaviour, IActorInteraction {
     public ActorHitBox Apply(ModifierBuilder builder) {
         transform.localScale = Vector3.one *  builder.size;
         transform.localPosition = Vector3.up * (builder.size * .5f);
-        _renderer.material.SetColor(MainColor, builder.color);
+        var props = new MaterialPropertyBlock();
+        
+        props.SetColor(MainColor, builder.color);
+        _renderer.SetPropertyBlock(props);
         return this;
     }
     
