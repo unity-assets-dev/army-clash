@@ -61,11 +61,17 @@ public class Actor : MonoBehaviour, IActor, IInteractionListener {
         _agent.radius = _model.GetRadius();
         _agent.avoidancePriority = UnityEngine.Random.Range(1, 500);
         
-        _marker.material.color = this is Blue? 
+        SetMarkerColor(this is Blue? 
             Color.blue.WithAlpha(.25f): 
-            Color.red.WithAlpha(.25f);
+            Color.red.WithAlpha(.25f));
     }
     
+    private void SetMarkerColor(Color color) {
+        var block = new MaterialPropertyBlock();
+        block.SetColor("_Color", color);
+        _marker.SetPropertyBlock(block);
+    }
+
     private void SetHealth(int health) {
         _health = health;
         

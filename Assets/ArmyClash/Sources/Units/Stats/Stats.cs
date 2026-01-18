@@ -19,16 +19,3 @@ public class Stats: ScriptableObject, IStat {
     public override string ToString() => $"[HP: {Health}, ATK: {Attack}, ATKSPD: {AttackSpeed}, SPD: {Speed}]";
 }
 
-public class Hero {
-
-    public Hero(IStat stat, IStat[] modifiers) {
-        var stats = stat;
-        Debug.Log($"Base: {stats}");
-        foreach (var modifier in modifiers) {
-            stats = modifier.Transform(stats);
-            Debug.Log($"Form: {stats}");
-        }
-        
-    }
-    
-}
