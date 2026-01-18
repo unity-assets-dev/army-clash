@@ -5,6 +5,7 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "Create BrainBlackboard", fileName = "BrainBlackboard", order = 0)]
 public class BrainBlackboard : ScriptableObject {
+    [SerializeField] private bool _usePushBack;
     
     private readonly Dictionary<Type, List<Actor>> _actors = new();
     
@@ -19,6 +20,13 @@ public class BrainBlackboard : ScriptableObject {
         }
     }
 
+    public bool TryUserPushBack(Actor actor) {
+        if (!_usePushBack) return false;
+        
+        var chances = actor.HealthPercent > .5f ? 5 : 15;
+        return UnityEngine.Random.Range(0, chances) >= 5;
+    }
+    
     public Actor GetNearestAliveTarget(Actor actor) {
         return GetNearestTarget(actor, out var nearestTarget) ? nearestTarget : null;
     }

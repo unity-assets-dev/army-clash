@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 365171fbcbf64879b890c394b4cabf05, type: 3}
   m_Name: BrainBlackboard
   m_EditorClassIdentifier: Assembly-CSharp::BrainBlackboard
+  _usePushBack: 1

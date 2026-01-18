@@ -26,6 +26,7 @@ public class Actor : MonoBehaviour, IActor, IInteractionListener {
 
     public event Action<Actor> OnDeath;
     public int Health => _health;
+    public float HealthPercent => _health / (float)_stats.Health;
 
     private void OnValidate() => _agent = GetComponent<NavMeshAgent>();
 
