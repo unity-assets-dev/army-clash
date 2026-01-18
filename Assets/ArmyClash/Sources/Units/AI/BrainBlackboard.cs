@@ -1,16 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Create BrainBlackboard", fileName = "BrainBlackboard", order = 0)]
+
+[CreateAssetMenu(menuName = "Create BrainBlackboard", fileName = "BrainBlackboard", order = 0), BurstCompile]
 public class BrainBlackboard : ScriptableObject {
     [SerializeField] private bool _usePushBack;
     
-    private readonly Dictionary<Type, List<Actor>> _actors = new();
+    private readonly Dictionary<Type, List<Actor>> _actors = new(2);
     
     public void AddBrain(Actor actor) {
-        _actors.TryAdd(actor.GetType(), new List<Actor>());
+        _actors.TryAdd(actor.GetType(), new List<Actor>(200));
         _actors[actor.GetType()].Add(actor);
     }
 
@@ -32,38 +36,111 @@ public class BrainBlackboard : ScriptableObject {
     }
 
     private List<Actor> GetEnemyTeam(Actor actor) {
-        var key = _actors.Keys.FirstOrDefault(k => k != actor.GetType());
-        
-        return _actors[key];
+        foreach (var key in _actors.Keys) {
+            if(key != actor.GetType()) return _actors[key];
+        }
+        return null;
     }
 
     public bool GetNearestTarget(Actor actor, out Actor target) {
-        var key = _actors.Keys.FirstOrDefault(k => k != actor.GetType());
-        target = null;
         
-        if(key == null) return false;
-        var nearest = float.MaxValue;
+        var neighbors = GetEnemyTeam(actor);
         
-        foreach (var neighbor in _actors[key]) {
-            if(neighbor.Dead()) continue;
-            
-            var distance = Vector3.Distance(actor.transform.position, neighbor.transform.position);
-            if (distance < nearest || target != null && target.Health > neighbor.Health) {
-                target = neighbor;
-                nearest = distance;
-            }
-        }
-
+        var job = GetNearestJob.Create(actor, neighbors).CompleteSchedule(neighbors.Count);
+        
+        target = neighbors[job.Target];
         return target != null;
     }
     
     public void GetSurroundedCount(Actor actor, int range, in HashSet<Actor> surroundingEnemy) {
         surroundingEnemy.Clear();
 
-        foreach (var enemy in GetEnemyTeam(actor)) {
-            if (Vector3.Distance(actor.transform.position, enemy.transform.position) <= range) {
-                surroundingEnemy.Add(enemy);
-            }
+        var enemyTeam = GetEnemyTeam(actor);
+        var job = GetSurroundingCountJob.Create(actor, range, enemyTeam).CompleteSchedule(enemyTeam.Count);
+
+        foreach (var result in job.Result) {
+            surroundingEnemy.Add(enemyTeam[result]);
         }
+    }
+}
+
+public static class JobsExtensions {
+    public static T CompleteSchedule<T>(this T job, int count = 4) where T : struct, IJobParallelFor {
+        job.Schedule(count, count / 4).Complete();
+        return job;
+    }
+}
+
+[BurstCompile]
+public struct GetSurroundingCountJob : IJobParallelFor {
+    
+    [ReadOnly] public Vector3 Self;
+    [ReadOnly] public float range;
+    [ReadOnly] public NativeArray<Vector3> Targets;
+    
+    [WriteOnly] public NativeArray<int> Result;
+    
+    private int _count;
+    
+    public void Execute(int index) {
+        var position = Targets[index];
+        var distance = math.distance(Self, position);
+
+        if (distance <= range) {
+            Result[_count++] = index;
+        }
+    }
+
+    public static GetSurroundingCountJob Create(Actor actor, float range, List<Actor> targets) {
+        var positions = new NativeArray<Vector3>(targets.Count, Allocator.TempJob);
+
+        for (var i = 0; i < targets.Count; i++) {
+            positions[i] = targets[i].transform.position;
+        }
+
+        return new GetSurroundingCountJob {
+            Self = actor.transform.position,
+            range = range,
+            Targets = positions,
+        };
+    }
+}
+
+[BurstCompile]
+public struct GetNearestJob : IJobParallelFor {
+    
+    [ReadOnly] private Vector3 Self;
+    [ReadOnly] private NativeArray<Vector3> Position;
+    [ReadOnly] private NativeArray<int> Health;
+
+    public int Target;
+
+    private float _minDistance;
+    
+    public void Execute(int index) {
+        var position = Position[index];
+        var health = Health[index];
+        var distance = math.distance(position,  Self);
+
+        if (_minDistance > 0 && distance < _minDistance) {
+            _minDistance = distance;
+            Target = index;
+        }
+    }
+
+    public static GetNearestJob Create(Actor actor, List<Actor> targets) {
+        var positions = new NativeArray<Vector3>(targets.Count, Allocator.TempJob);
+        var healths = new NativeArray<int>(targets.Count, Allocator.TempJob);
+
+        for (var i = 0; i < targets.Count; i++) {
+            positions[i] = targets[i].transform.position;
+            healths[i] = targets[i].Health;
+        }
+        
+        return new GetNearestJob() {
+            Self = actor.transform.position,
+            Position = positions,
+            Health = healths,
+        };
     }
 }
