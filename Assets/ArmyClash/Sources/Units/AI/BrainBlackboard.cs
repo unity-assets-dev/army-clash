@@ -111,10 +111,9 @@ public struct GetNearestJob : IJobParallelFor {
     [ReadOnly] private NativeArray<Vector3> _position;
     [ReadOnly] private NativeArray<int> _healths;
 
-    public int Target;
+    [WriteOnly] public int Target;
 
     private float _minDistance;
-    
     
     public void Execute(int index) {
         _minDistance = _minDistance == 0? float.MaxValue : _minDistance;
